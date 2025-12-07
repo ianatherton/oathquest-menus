@@ -1,4 +1,4 @@
-import { Heart, Plus, Brain, Coins } from 'lucide-react';
+import { Heart, Plus, Brain, Coins, Trophy } from 'lucide-react';
 import { Oath } from '../App';
 import { formatNumber } from '../utils/formatNumber';
 
@@ -8,6 +8,8 @@ interface OathCardProps {
 }
 
 export function OathCard({ oath, onClick }: OathCardProps) {
+  const isComplete = oath.endDate ? Date.now() > oath.endDate : false;
+
   const getTimeElapsed = () => {
     const now = Date.now();
     const elapsed = now - oath.startDate;
@@ -21,17 +23,27 @@ export function OathCard({ oath, onClick }: OathCardProps) {
   return (
     <button
       onClick={onClick}
-      className="w-full flex items-center gap-2 group hover:scale-[1.02] transition-transform"
+      className={`w-full flex items-center gap-2 group hover:scale-[1.02] transition-transform ${isComplete ? 'relative' : ''}`}
     >
+      {/* Glow effect for completed oaths */}
+      {isComplete && (
+        <div className="absolute inset-0 btn-shine rounded-2xl opacity-30 pointer-events-none" />
+      )}
+
       {/* Icon */}
-      <div className="w-16 h-16 bg-gray-900 rounded-full border-4 border-yellow-500 flex items-center justify-center flex-shrink-0 shadow-lg">
-        <span className="text-2xl">🛡️</span>
+      <div className={`w-16 h-16 rounded-full border-4 flex items-center justify-center flex-shrink-0 shadow-lg ${
+        isComplete ? 'bg-green-600 border-green-400' : 'bg-gray-900 border-yellow-500'
+      }`}>
+        <span className="text-2xl">{isComplete ? '🏆' : '🛡️'}</span>
       </div>
 
       {/* Habit name */}
-      <div className="bg-yellow-300 px-6 py-3 rounded-r-full border-4 border-black shadow-lg group-hover:bg-yellow-200 transition-colors flex-shrink-0">
-        <span className="text-black">
-          🕐 {oath.habit} for {getTimeElapsed()}
+      <div className={`px-6 py-3 rounded-r-full border-4 border-black shadow-lg transition-colors flex-shrink-0 ${
+        isComplete ? 'btn-shine group-hover:brightness-110' : 'bg-yellow-300 group-hover:bg-yellow-200'
+      }`}>
+        <span className="text-black flex items-center gap-2">
+          {isComplete && <Trophy className="w-4 h-4" />}
+          {isComplete ? '✨' : '🕐'} {oath.habit} for {getTimeElapsed()}
         </span>
       </div>
 

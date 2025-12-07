@@ -151,14 +151,16 @@ export function OathDetailScreen({ oath, onBack, onDelete, onComplete }: OathDet
           />
         </div>
 
-        {/* Break Oath Button */}
-        <button
-          onClick={handleDelete}
-          className="w-full bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-xl border-4 border-black shadow-lg transition-colors flex items-center justify-center gap-2"
-        >
-          <Trash2 className="w-5 h-5" />
-          <span>Break Oath (Delete)</span>
-        </button>
+        {/* Break Oath Button - hidden when oath is complete */}
+        {!isComplete && (
+          <button
+            onClick={handleDelete}
+            className="w-full bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-xl border-4 border-black shadow-lg transition-colors flex items-center justify-center gap-2"
+          >
+            <Trash2 className="w-5 h-5" />
+            <span>Break Oath (Delete)</span>
+          </button>
+        )}
       </div>
     </div>
   );
