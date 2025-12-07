@@ -1,9 +1,32 @@
 import { useState } from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
+
+const BADGES = [
+  '🛡️', // shield (default)
+  '🥤', // beverage
+  '🍺', // beer/alcohol
+  '🚬', // smoking
+  '💊', // pills/medication
+  '🍬', // candy/sugar
+  '📱', // phone/screen time
+  '🎮', // gaming
+  '💪', // exercise
+  '🏃', // running
+  '🧘', // yoga/meditation
+  '📚', // reading
+  '💤', // sleep
+  '🥗', // healthy eating
+  '💧', // water/hydration
+  '☕', // coffee
+  '🎯', // goals
+  '⏰', // time management
+  '💰', // money/saving
+  '🧹', // cleaning
+];
 
 interface NewOathScreenProps {
   onBack: () => void;
-  onCreateOath: (habit: string, preface: 'stop' | 'start', length: 'forever' | number, startTime: string) => void;
+  onCreateOath: (habit: string, preface: 'stop' | 'start', length: 'forever' | number, startTime: string, badge: string) => void;
 }
 
 export function NewOathScreen({ onBack, onCreateOath }: NewOathScreenProps) {
@@ -16,6 +39,10 @@ export function NewOathScreen({ onBack, onCreateOath }: NewOathScreenProps) {
   const [hour, setHour] = useState('12');
   const [minute, setMinute] = useState('00');
   const [ampm, setAmpm] = useState<'AM' | 'PM'>('PM');
+  const [badgeIndex, setBadgeIndex] = useState(0);
+
+  const prevBadge = () => setBadgeIndex((i) => (i - 1 + BADGES.length) % BADGES.length);
+  const nextBadge = () => setBadgeIndex((i) => (i + 1) % BADGES.length);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +57,7 @@ export function NewOathScreen({ onBack, onCreateOath }: NewOathScreenProps) {
       time = `${startDate} ${hour}:${minute} ${ampm}`;
     }
 
-    onCreateOath(habit, preface, length, time);
+    onCreateOath(habit, preface, length, time, BADGES[badgeIndex]);
   };
 
   return (
@@ -54,9 +81,25 @@ export function NewOathScreen({ onBack, onCreateOath }: NewOathScreenProps) {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Empty icon box */}
-          <div className="bg-purple-900/50 border-4 border-purple-950 rounded-xl p-8 flex items-center justify-center">
-            <Plus className="w-24 h-24 text-purple-600" />
+          {/* Badge selector */}
+          <div className="bg-purple-900/50 border-4 border-purple-950 rounded-xl p-6 flex items-center justify-center gap-4">
+            <button
+              type="button"
+              onClick={prevBadge}
+              className="bg-purple-800 hover:bg-purple-700 p-3 rounded-full border-2 border-purple-950 transition-colors"
+            >
+              <ChevronLeft className="w-8 h-8 text-white" />
+            </button>
+            <div className="w-32 h-32 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-2xl border-4 border-black flex items-center justify-center shadow-lg">
+              <span className="text-7xl">{BADGES[badgeIndex]}</span>
+            </div>
+            <button
+              type="button"
+              onClick={nextBadge}
+              className="bg-purple-800 hover:bg-purple-700 p-3 rounded-full border-2 border-purple-950 transition-colors"
+            >
+              <ChevronRight className="w-8 h-8 text-white" />
+            </button>
           </div>
 
           {/* Preface selection */}
@@ -265,23 +308,5 @@ export function NewOathScreen({ onBack, onCreateOath }: NewOathScreenProps) {
         </form>
       </div>
     </div>
-  );
-}
-
-function Plus({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <line x1="12" y1="5" x2="12" y2="19"></line>
-      <line x1="5" y1="12" x2="19" y2="12"></line>
-    </svg>
   );
 }

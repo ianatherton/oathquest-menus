@@ -1,4 +1,4 @@
-import { Heart, Leaf, Brain, Coins, Trophy, Home, ScrollText } from 'lucide-react';
+import { Heart, Leaf, Brain, Trophy, Home, ScrollText } from 'lucide-react';
 import { Oath } from '../App';
 import { formatNumber } from '../utils/formatNumber';
 
@@ -63,9 +63,9 @@ export function OathSuccessScreen({ oath, onContinue, onViewHalla }: OathSuccess
               <div className="text-blue-900 text-xs">Wisdom</div>
             </div>
             <div className="bg-yellow-400 p-4 rounded-xl border-4 border-black">
-              <Coins className="w-8 h-8 text-yellow-900 mx-auto mb-2" />
+              <span className="text-3xl block mx-auto mb-2">🦋</span>
               <div className="text-black font-bold">{formatNumber(oath.currencies.gold)}</div>
-              <div className="text-yellow-900 text-xs">Gold</div>
+              <div className="text-yellow-900 text-xs">Renewal</div>
             </div>
           </div>
         </div>

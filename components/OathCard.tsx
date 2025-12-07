@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Heart, Leaf, Brain, Coins, Trophy } from 'lucide-react';
+import { Heart, Leaf, Brain, Trophy } from 'lucide-react';
 import { Oath } from '../App';
 import { formatNumber } from '../utils/formatNumber';
 
@@ -19,7 +19,7 @@ const PARTICLE_CONFIG = {
   willpower: { symbol: '❤️', speed: 'fast', duration: 700 },
   wellness: { symbol: '🌿', speed: 'medium', duration: 1500 },
   wisdom: { symbol: '🧠', speed: 'slow', duration: 3000 },
-  gold: { symbol: '🪙', speed: 'slow', duration: 3000 },
+  gold: { symbol: '🦋', speed: 'slow', duration: 3000 },
 } as const;
 
 export function OathCard({ oath, onClick }: OathCardProps) {
@@ -97,7 +97,7 @@ export function OathCard({ oath, onClick }: OathCardProps) {
         <div className={`w-12 h-12 md:w-16 md:h-16 rounded-full border-4 flex items-center justify-center flex-shrink-0 shadow-lg ${
           isComplete ? 'bg-green-600 border-green-400' : 'bg-gray-900 border-yellow-500'
         }`}>
-          <span className="text-xl md:text-2xl">{isComplete ? '🏆' : '🛡️'}</span>
+          <span className="text-xl md:text-2xl">{isComplete ? '🏆' : (oath.badge || '🛡️')}</span>
         </div>
 
         {/* Habit name */}
@@ -106,7 +106,13 @@ export function OathCard({ oath, onClick }: OathCardProps) {
         }`}>
 <span className="text-black flex items-center gap-2 text-sm md:text-base">
           {isComplete && <Trophy className="w-4 h-4" />}
-          {isComplete ? '✨' : '🕐'} {oath.preface === 'stop' ? 'Stop' : 'Start'} {oath.habit} for {getTimeElapsed()}
+          {isComplete ? '✨' : (
+            <span className={`inline-flex items-center justify-center w-5 h-5 md:w-6 md:h-6 rounded border-2 text-xs md:text-sm ${
+              oath.preface === 'stop' ? 'border-red-600 bg-red-100' : 'border-green-600 bg-green-100'
+            }`}>
+              {oath.preface === 'stop' ? '🛑' : '🚀'}
+            </span>
+          )} {oath.preface === 'stop' ? 'Stop' : 'Start'} {oath.habit} for {getTimeElapsed()}
         </span>
         </div>
 
@@ -115,7 +121,7 @@ export function OathCard({ oath, onClick }: OathCardProps) {
           {renderCurrencyBox('willpower', 'bg-red-400', <Heart className="w-6 h-6 text-red-900 fill-red-900" />, oath.currencies.willpower)}
           {renderCurrencyBox('wellness', 'bg-green-400', <Leaf className="w-6 h-6 text-green-900" />, oath.currencies.wellness)}
           {renderCurrencyBox('wisdom', 'bg-blue-400', <Brain className="w-6 h-6 text-blue-900" />, oath.currencies.wisdom)}
-          {renderCurrencyBox('gold', 'bg-yellow-400', <Coins className="w-6 h-6 text-yellow-900" />, oath.currencies.gold)}
+          {renderCurrencyBox('gold', 'bg-yellow-400', <span className="text-xl">🦋</span>, oath.currencies.gold)}
         </div>
       </div>
 
@@ -124,7 +130,7 @@ export function OathCard({ oath, onClick }: OathCardProps) {
         {renderCurrencyBox('willpower', 'bg-red-400', <Heart className="w-5 h-5 text-red-900 fill-red-900" />, oath.currencies.willpower)}
         {renderCurrencyBox('wellness', 'bg-green-400', <Leaf className="w-5 h-5 text-green-900" />, oath.currencies.wellness)}
         {renderCurrencyBox('wisdom', 'bg-blue-400', <Brain className="w-5 h-5 text-blue-900" />, oath.currencies.wisdom)}
-        {renderCurrencyBox('gold', 'bg-yellow-400', <Coins className="w-5 h-5 text-yellow-900" />, oath.currencies.gold)}
+        {renderCurrencyBox('gold', 'bg-yellow-400', <span className="text-lg">🦋</span>, oath.currencies.gold)}
       </div>
     </button>
   );

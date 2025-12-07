@@ -1,4 +1,4 @@
-import { ArrowLeft, Heart, Leaf, Brain, Coins, Trophy, X } from 'lucide-react';
+import { ArrowLeft, Heart, Leaf, Brain, Trophy, X } from 'lucide-react';
 import { Trophy as TrophyType } from '../App';
 import { formatNumber } from '../utils/formatNumber';
 
@@ -36,9 +36,15 @@ export function OathHalla({ trophies, onBack, onDeleteTrophy }: OathHallaProps) 
         </div>
 
         {/* Subtitle */}
-        <p className="text-yellow-200 text-center mb-8 text-lg">
+        <p className="text-yellow-200 text-center text-lg">
           The Hall of Honored Oaths — Where Legends Rest
         </p>
+        {trophies.length > 0 && (
+          <p className="text-yellow-300 text-center mb-8">
+            🏆 {trophies.length} {trophies.length === 1 ? 'Trophy' : 'Trophies'} Earned 🏆
+          </p>
+        )}
+        {trophies.length === 0 && <div className="mb-8" />}
 
         {/* Trophies List */}
         {trophies.length === 0 ? (
@@ -103,22 +109,13 @@ export function OathHalla({ trophies, onBack, onDeleteTrophy }: OathHallaProps) 
                       <span className="text-black text-sm">{formatNumber(trophy.finalCurrencies.wisdom)}</span>
                     </div>
                     <div className="bg-yellow-400/80 px-3 py-2 rounded-lg border-2 border-black flex items-center gap-2">
-                      <Coins className="w-4 h-4 text-yellow-900" />
+                      <span className="text-base">🦋</span>
                       <span className="text-black text-sm">{formatNumber(trophy.finalCurrencies.gold)}</span>
                     </div>
                   </div>
                 </div>
               </div>
             ))}
-          </div>
-        )}
-
-        {/* Trophy count footer */}
-        {trophies.length > 0 && (
-          <div className="mt-8 text-center">
-            <p className="text-yellow-300">
-              🏆 {trophies.length} {trophies.length === 1 ? 'Trophy' : 'Trophies'} Earned 🏆
-            </p>
           </div>
         )}
       </div>

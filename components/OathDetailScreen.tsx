@@ -1,4 +1,4 @@
-import { ArrowLeft, Heart, Leaf, Brain, Coins, Trash2, Trophy } from 'lucide-react';
+import { ArrowLeft, Heart, Leaf, Brain, Trash2, Trophy } from 'lucide-react';
 import { Oath } from '../App';
 import { CurrencyCard } from './CurrencyCard';
 
@@ -149,12 +149,12 @@ export function OathDetailScreen({ oath, onBack, onDelete, onComplete }: OathDet
             particleSpeed="slow"
           />
           <CurrencyCard
-            name="Gold"
-            icon={<Coins className="w-12 h-12 text-yellow-900" />}
+            name="Renewal"
+            icon={<span className="text-5xl">🦋</span>}
             value={oath.currencies.gold}
             color="yellow"
-            description="The treasure of accomplishment and self-discipline"
-            particleSymbol="🪙"
+            description="The transformation that comes from lasting change"
+            particleSymbol="🦋"
             particleSpeed="slow"
           />
         </div>
