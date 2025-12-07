@@ -110,7 +110,7 @@ export function OathCard({ oath, onClick }: OathCardProps) {
             <span className={`inline-flex items-center justify-center w-5 h-5 md:w-6 md:h-6 rounded border-2 text-xs md:text-sm ${
               oath.preface === 'stop' ? 'border-red-600 bg-red-100' : 'border-green-600 bg-green-100'
             }`}>
-              {oath.preface === 'stop' ? '🛑' : '🚀'}
+              <span className="text-[1.5em] drop-shadow-md">{oath.preface === 'stop' ? '🛑' : '🚀'}</span>
             </span>
           )} {oath.preface === 'stop' ? 'Stop' : 'Start'} {oath.habit} for {getTimeElapsed()}
         </span>

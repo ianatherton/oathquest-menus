@@ -91,12 +91,19 @@ export function OathDetailScreen({ oath, onBack, onDelete, onComplete }: OathDet
             <ArrowLeft className="w-6 h-6 text-white" />
           </button>
           <div className="bg-yellow-400 text-black px-8 py-4 rounded-xl border-4 border-black shadow-lg flex-1 text-center">
-            <span>{oath.habit}</span>
+            <span><span className="text-[1.5em]">{oath.preface === 'stop' ? '🛑' : '🚀'}</span> {oath.habit}</span>
           </div>
         </div>
 
         {/* Oath Info */}
-        <div className="bg-purple-900/70 border-4 border-purple-950 rounded-xl p-8 mb-8">
+        <div className="relative">
+          {/* Large oath icon - overlapping behind */}
+          <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-0">
+            <span className="text-[8rem] drop-shadow-[0_8px_16px_rgba(0,0,0,0.4)] opacity-90">
+              {oath.badge || '🛡️'}
+            </span>
+          </div>
+        <div className="bg-purple-900/70 border-4 border-purple-950 rounded-xl p-8 mb-8 relative z-10 mt-16">
           <div className="flex items-center justify-between mb-6">
             <div className="text-center flex-1">
               <div className="text-white/60 text-sm mb-2">Time Kept</div>
@@ -123,6 +130,7 @@ export function OathDetailScreen({ oath, onBack, onDelete, onComplete }: OathDet
             {oath.endDate && <p>Ends: {new Date(oath.endDate).toLocaleString()}</p>}
           </div>
         </div>
+        </div>
 
         {/* Sacred Currencies Title + Complete Button */}
         <div className="flex items-center gap-4 mb-6 flex-wrap">
@@ -147,7 +155,7 @@ export function OathDetailScreen({ oath, onBack, onDelete, onComplete }: OathDet
             icon={<Heart className="w-12 h-12 text-red-900 fill-red-900" />}
             value={oath.currencies.willpower}
             color="red"
-            description="Your inner strength grows with each passing hour"
+            description="Your inner strength grows with each passing second"
             particleSymbol="❤️"
             particleSpeed="fast"
           />

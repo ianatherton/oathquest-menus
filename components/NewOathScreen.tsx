@@ -94,14 +94,15 @@ export function NewOathScreen({ onBack, onCreateOath, onImportOath }: NewOathScr
           </div>
           <button
             onClick={() => setShowImport(!showImport)}
-            className={`p-4 rounded-full border-4 transition-colors ${
+            className={`px-4 py-3 rounded-xl border-4 transition-colors flex items-center gap-2 ${
               showImport 
-                ? 'bg-yellow-400 border-black' 
-                : 'bg-purple-900 border-purple-950 hover:bg-purple-800'
+                ? 'bg-yellow-400 border-black text-black' 
+                : 'bg-purple-900 border-purple-950 hover:bg-purple-800 text-white'
             }`}
             title="Import Oath"
           >
-            <Download className={`w-6 h-6 ${showImport ? 'text-black' : 'text-white'}`} />
+            <Download className="w-5 h-5" />
+            <span>Import</span>
           </button>
         </div>
 
@@ -138,6 +139,12 @@ export function NewOathScreen({ onBack, onCreateOath, onImportOath }: NewOathScr
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Badge selector */}
+          <div className="space-y-2">
+            <label className="text-white block">
+              <span className="bg-purple-900/70 px-4 py-2 rounded-lg border-2 border-purple-950 inline-block">
+                Oath Icon:
+              </span>
+            </label>
           <div className="bg-purple-900/50 border-4 border-purple-950 rounded-xl p-6 flex items-center justify-center gap-4">
             <button
               type="button"
@@ -157,6 +164,7 @@ export function NewOathScreen({ onBack, onCreateOath, onImportOath }: NewOathScr
               <ChevronRight className="w-8 h-8 text-white" />
             </button>
           </div>
+          </div>
 
           {/* Preface selection */}
           <div className="space-y-2">
@@ -175,7 +183,7 @@ export function NewOathScreen({ onBack, onCreateOath, onImportOath }: NewOathScr
                     : 'bg-purple-900/70 text-white hover:bg-purple-800/70'
                 }`}
               >
-                🛑 Stop
+                <span className="text-[1.5em]">🛑</span> Stop
               </button>
               <button
                 type="button"
@@ -186,7 +194,7 @@ export function NewOathScreen({ onBack, onCreateOath, onImportOath }: NewOathScr
                     : 'bg-purple-900/70 text-white hover:bg-purple-800/70'
                 }`}
               >
-                🚀 Start
+                <span className="text-[1.5em]">🚀</span> Start
               </button>
             </div>
           </div>
@@ -202,7 +210,7 @@ export function NewOathScreen({ onBack, onCreateOath, onImportOath }: NewOathScr
               type="text"
               value={habit}
               onChange={(e) => setHabit(e.target.value)}
-              placeholder={preface === 'stop' ? 'eating added sugar' : 'exercising daily'}
+              placeholder={preface === 'stop' ? 'biting my nails' : 'exercising daily'}
               maxLength={60}
               className="w-full px-6 py-4 bg-white rounded-xl border-4 border-black text-black placeholder:text-gray-500"
               required
