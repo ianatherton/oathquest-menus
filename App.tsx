@@ -3,6 +3,8 @@ import { HomeScreen } from './components/HomeScreen';
 import { NewOathScreen } from './components/NewOathScreen';
 import { OathDetailScreen } from './components/OathDetailScreen';
 import { OathSealedModal } from './components/OathSealedModal';
+import { OathSuccessScreen } from './components/OathSuccessScreen';
+import { OathHalla } from './components/OathHalla';
 
 export interface Oath {
   id: string;
@@ -20,7 +22,21 @@ export interface Oath {
   lastUpdated: number;
 }
 
-type Screen = 'home' | 'new-oath' | 'oath-detail';
+export interface Trophy {
+  id: string;
+  habit: string;
+  startDate: number;
+  completedDate: number;
+  totalDays: number;
+  finalCurrencies: {
+    willpower: number;
+    wellness: number;
+    wisdom: number;
+    gold: number;
+  };
+}
+
+type Screen = 'home' | 'new-oath' | 'oath-detail' | 'oath-success' | 'oath-halla';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('home');
@@ -29,12 +45,21 @@ export default function App() {
     const saved = localStorage.getItem('oathsData');
     return saved ? JSON.parse(saved) : [];
   });
+  const [trophies, setTrophies] = useState<Trophy[]>(() => {
+    const saved = localStorage.getItem('oathTrophies');
+    return saved ? JSON.parse(saved) : [];
+  });
   const [showSealedModal, setShowSealedModal] = useState(false);
   const [newOath, setNewOath] = useState<Oath | null>(null);
+  const [completedOath, setCompletedOath] = useState<Oath | null>(null);
 
   useEffect(() => {
     localStorage.setItem('oathsData', JSON.stringify(oaths));
   }, [oaths]);
+
+  useEffect(() => {
+    localStorage.setItem('oathTrophies', JSON.stringify(trophies));
+  }, [trophies]);
 
   // Update currencies for all oaths based on time elapsed
   useEffect(() => {
@@ -129,6 +154,22 @@ export default function App() {
     setCurrentScreen('home');
   };
 
+  const handleCompleteOath = (oath: Oath) => {
+    const totalDays = Math.floor((Date.now() - oath.startDate) / (1000 * 60 * 60 * 24));
+    const trophy: Trophy = {
+      id: `trophy-${Date.now()}`,
+      habit: oath.habit,
+      startDate: oath.startDate,
+      completedDate: Date.now(),
+      totalDays,
+      finalCurrencies: { ...oath.currencies },
+    };
+    setTrophies((prev) => [...prev, trophy]);
+    setCompletedOath(oath);
+    setOaths((prev) => prev.filter((o) => o.id !== oath.id));
+    setCurrentScreen('oath-success');
+  };
+
   const handleCloseSealed = () => {
     setShowSealedModal(false);
     setCurrentScreen('home');
@@ -141,11 +182,13 @@ export default function App() {
       {currentScreen === 'home' && (
         <HomeScreen
           oaths={oaths}
+          trophyCount={trophies.length}
           onNewOath={() => setCurrentScreen('new-oath')}
           onSelectOath={(id) => {
             setSelectedOathId(id);
             setCurrentScreen('oath-detail');
           }}
+          onOpenHalla={() => setCurrentScreen('oath-halla')}
         />
       )}
 
@@ -161,6 +204,22 @@ export default function App() {
           oath={selectedOath}
           onBack={() => setCurrentScreen('home')}
           onDelete={handleDeleteOath}
+          onComplete={handleCompleteOath}
+        />
+      )}
+
+      {currentScreen === 'oath-success' && completedOath && (
+        <OathSuccessScreen
+          oath={completedOath}
+          onContinue={() => setCurrentScreen('home')}
+          onViewHalla={() => setCurrentScreen('oath-halla')}
+        />
+      )}
+
+      {currentScreen === 'oath-halla' && (
+        <OathHalla
+          trophies={trophies}
+          onBack={() => setCurrentScreen('home')}
         />
       )}
 

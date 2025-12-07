@@ -1,4 +1,4 @@
-import { ArrowLeft, Heart, Plus, Brain, Coins, Trash2 } from 'lucide-react';
+import { ArrowLeft, Heart, Plus, Brain, Coins, Trash2, Trophy } from 'lucide-react';
 import { Oath } from '../App';
 import { CurrencyCard } from './CurrencyCard';
 
@@ -6,9 +6,10 @@ interface OathDetailScreenProps {
   oath: Oath;
   onBack: () => void;
   onDelete: (id: string) => void;
+  onComplete: (oath: Oath) => void;
 }
 
-export function OathDetailScreen({ oath, onBack, onDelete }: OathDetailScreenProps) {
+export function OathDetailScreen({ oath, onBack, onDelete, onComplete }: OathDetailScreenProps) {
   const getTimeElapsed = () => {
     const now = Date.now();
     const elapsed = now - oath.startDate;
@@ -23,16 +24,30 @@ export function OathDetailScreen({ oath, onBack, onDelete }: OathDetailScreenPro
     if (!oath.endDate) return null;
     const now = Date.now();
     const remaining = oath.endDate - now;
-    if (remaining <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+    if (remaining <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0, isComplete: true };
     const days = Math.floor(remaining / (1000 * 60 * 60 * 24));
     const hours = Math.floor((remaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+    return { days, hours, minutes, seconds, isComplete: false };
+  };
+
+  const getBonusTime = () => { // time elapsed since oath.endDate
+    if (!oath.endDate) return null;
+    const now = Date.now();
+    const bonus = now - oath.endDate;
+    if (bonus <= 0) return null;
+    const days = Math.floor(bonus / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((bonus % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((bonus % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((bonus % (1000 * 60)) / 1000);
     return { days, hours, minutes, seconds };
   };
 
   const elapsed = getTimeElapsed();
   const remaining = getTimeRemaining();
+  const bonusTime = getBonusTime();
+  const isComplete = remaining?.isComplete ?? false;
 
   const handleDelete = () => {
     if (confirm('Are you sure you want to break this oath? All progress will be lost.')) {
@@ -70,9 +85,13 @@ export function OathDetailScreen({ oath, onBack, onDelete }: OathDetailScreenPro
             </div>
             {remaining && (
               <div className="text-center flex-1 border-l-4 border-purple-950">
-                <div className="text-white/60 text-sm mb-2">Time Remaining</div>
-                <div className="text-white text-4xl">
-                  {remaining.days}d {remaining.hours}h {remaining.minutes}m {remaining.seconds}s
+                <div className={`text-sm mb-2 ${isComplete ? 'text-glow-green' : 'text-white/60'}`}>
+                  {isComplete ? '✨ Bonus Time ✨' : 'Time Remaining'}
+                </div>
+                <div className={`text-4xl ${isComplete ? 'text-glow-green' : 'text-white'}`}>
+                  {isComplete && bonusTime
+                    ? `+${bonusTime.days}d ${bonusTime.hours}h ${bonusTime.minutes}m ${bonusTime.seconds}s` 
+                    : `${remaining.days}d ${remaining.hours}h ${remaining.minutes}m ${remaining.seconds}s`}
                 </div>
               </div>
             )}
@@ -84,9 +103,20 @@ export function OathDetailScreen({ oath, onBack, onDelete }: OathDetailScreenPro
           </div>
         </div>
 
-        {/* Sacred Currencies Title */}
-        <div className="bg-yellow-400 text-black px-6 py-3 rounded-xl border-4 border-black inline-block mb-6">
-          <span>Sacred Currencies</span>
+        {/* Sacred Currencies Title + Complete Button */}
+        <div className="flex items-center gap-4 mb-6 flex-wrap">
+          <div className="bg-yellow-400 text-black px-6 py-3 rounded-xl border-4 border-black inline-block">
+            <span>Sacred Currencies</span>
+          </div>
+          {isComplete && (
+            <button
+              onClick={() => onComplete(oath)}
+              className="btn-shine text-black px-6 py-3 rounded-xl border-4 border-black shadow-lg flex items-center gap-2 hover:scale-105 transition-transform"
+            >
+              <Trophy className="w-5 h-5" />
+              <span className="font-semibold">Complete - Oath Upheld</span>
+            </button>
+          )}
         </div>
 
         {/* Currencies Grid */}

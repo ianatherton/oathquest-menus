@@ -1,15 +1,16 @@
-import { Plus } from 'lucide-react';
+import { Plus, Trophy } from 'lucide-react';
 import { Oath } from '../App';
 import { OathCard } from './OathCard';
-// Figma asset placeholder - removed for local dev
 
 interface HomeScreenProps {
   oaths: Oath[];
+  trophyCount: number;
   onNewOath: () => void;
   onSelectOath: (id: string) => void;
+  onOpenHalla: () => void;
 }
 
-export function HomeScreen({ oaths, onNewOath, onSelectOath }: HomeScreenProps) {
+export function HomeScreen({ oaths, trophyCount, onNewOath, onSelectOath, onOpenHalla }: HomeScreenProps) {
   return (
     <div className="min-h-screen p-6" style={{ 
       backgroundImage: 'repeating-linear-gradient(90deg, rgba(139, 92, 246, 0.3) 0px, rgba(139, 92, 246, 0.3) 40px, rgba(126, 34, 206, 0.3) 40px, rgba(126, 34, 206, 0.3) 80px)',
@@ -17,7 +18,7 @@ export function HomeScreen({ oaths, onNewOath, onSelectOath }: HomeScreenProps) 
     }}>
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
           <button
             onClick={onNewOath}
             className="bg-yellow-400 text-black px-8 py-4 rounded-xl border-4 border-black shadow-lg hover:bg-yellow-300 transition-colors"
@@ -26,6 +27,18 @@ export function HomeScreen({ oaths, onNewOath, onSelectOath }: HomeScreenProps) 
               <Plus size={24} />
               <span>New Oath</span>
             </div>
+          </button>
+          <button
+            onClick={onOpenHalla}
+            className="bg-yellow-600 hover:bg-yellow-500 text-white px-6 py-4 rounded-xl border-4 border-black shadow-lg transition-colors flex items-center gap-2"
+          >
+            <Trophy size={24} />
+            <span>Oath-Halla</span>
+            {trophyCount > 0 && (
+              <span className="bg-yellow-400 text-black px-2 py-0.5 rounded-full text-sm font-bold">
+                {trophyCount}
+              </span>
+            )}
           </button>
         </div>
 

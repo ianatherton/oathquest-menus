@@ -198,3 +198,34 @@ html {
   font-size: var(--font-size);
   font-family: 'Lexend', system-ui, sans-serif;
 }
+
+/* Oath completion animations */
+@keyframes shine {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { text-shadow: 0 0 10px #22c55e, 0 0 20px #22c55e, 0 0 30px #22c55e; }
+  50% { text-shadow: 0 0 15px #4ade80, 0 0 30px #4ade80, 0 0 45px #4ade80; }
+}
+
+@keyframes trophy-float {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-8px) rotate(2deg); }
+}
+
+.btn-shine {
+  background: linear-gradient(90deg, #22c55e 0%, #4ade80 25%, #86efac 50%, #4ade80 75%, #22c55e 100%);
+  background-size: 200% auto;
+  animation: shine 2s linear infinite;
+}
+
+.text-glow-green {
+  color: #4ade80;
+  animation: glow-pulse 1.5s ease-in-out infinite;
+}
+
+.trophy-float {
+  animation: trophy-float 3s ease-in-out infinite;
+}
