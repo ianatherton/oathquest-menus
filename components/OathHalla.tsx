@@ -1,13 +1,19 @@
-import { ArrowLeft, Heart, Leaf, Brain, Coins, Trophy } from 'lucide-react';
+import { ArrowLeft, Heart, Leaf, Brain, Coins, Trophy, X } from 'lucide-react';
 import { Trophy as TrophyType } from '../App';
 import { formatNumber } from '../utils/formatNumber';
 
 interface OathHallaProps {
   trophies: TrophyType[];
   onBack: () => void;
+  onDeleteTrophy: (trophyId: string) => void;
 }
 
-export function OathHalla({ trophies, onBack }: OathHallaProps) {
+export function OathHalla({ trophies, onBack, onDeleteTrophy }: OathHallaProps) {
+  const handleDelete = (trophy: TrophyType) => {
+    if (confirm(`Are you sure you want to delete the trophy for "${trophy.preface === 'stop' ? 'Stopped' : 'Started'} ${trophy.habit}"? This cannot be undone.`)) {
+      onDeleteTrophy(trophy.id);
+    }
+  };
   return (
     <div className="min-h-screen p-6" style={{ 
       backgroundImage: 'repeating-linear-gradient(90deg, rgba(234, 179, 8, 0.15) 0px, rgba(234, 179, 8, 0.15) 40px, rgba(202, 138, 4, 0.15) 40px, rgba(202, 138, 4, 0.15) 80px)',
@@ -51,13 +57,22 @@ export function OathHalla({ trophies, onBack }: OathHallaProps) {
                 className="relative bg-yellow-900/60 border-4 border-yellow-700 rounded-xl p-6 hover:bg-yellow-900/80 transition-colors"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
+                {/* Delete button */}
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleDelete(trophy); }}
+                  className="absolute top-2 right-2 p-2 bg-red-600 hover:bg-red-700 rounded-full border-2 border-black transition-colors z-10"
+                  title="Delete trophy"
+                >
+                  <X className="w-4 h-4 text-white" />
+                </button>
+
                 {/* Scroll decoration */}
                 <div className="absolute -left-4 -top-4 w-16 h-16">
                   <img src="/ui_scroll.png" alt="" className="w-full h-full object-contain" />
                 </div>
 
                 {/* Trophy content */}
-                <div className="ml-8">
+                <div className="ml-8 mr-8">
                   <div className="flex items-start justify-between mb-4">
                     <div>
                       <h3 className="text-xl text-yellow-100 font-bold flex items-center gap-2">

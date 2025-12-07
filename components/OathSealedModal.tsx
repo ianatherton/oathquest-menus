@@ -1,14 +1,27 @@
+import { ArrowLeft } from 'lucide-react';
 import { Oath } from '../App';
 
 interface OathSealedModalProps {
   oath: Oath;
   onClose: () => void;
+  onBack: () => void;
 }
 
-export function OathSealedModal({ oath, onClose }: OathSealedModalProps) {
+export function OathSealedModal({ oath, onClose, onBack }: OathSealedModalProps) {
+  const prefaceVerb = oath.preface === 'stop' ? 'stop' : 'start';
+  const prefacePast = oath.preface === 'stop' ? 'stopped' : 'started';
+
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-6 z-50">
       <div className="relative max-w-2xl w-full">
+        {/* Back button */}
+        <button
+          onClick={onBack}
+          className="absolute -top-2 -left-2 z-10 bg-purple-900 p-3 rounded-full border-4 border-purple-950 hover:bg-purple-800 transition-colors shadow-lg"
+        >
+          <ArrowLeft className="w-5 h-5 text-white" />
+        </button>
+
         {/* Celebration effects */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="text-9xl animate-bounce">⭐</div>
@@ -35,15 +48,15 @@ export function OathSealedModal({ oath, onClose }: OathSealedModalProps) {
               </div>
 
               <div className="text-black space-y-4 text-lg italic max-w-md mx-auto bg-white/50 p-6 rounded-xl">
-                <p>I pledge to stop {oath.habit}</p>
+                <p>I pledge to {prefaceVerb} {oath.habit}</p>
                 {oath.length === 'forever' ? (
                   <p>Forever and always</p>
                 ) : (
                   <p>For {oath.length} days</p>
                 )}
-                <p>I stopped on {new Date(oath.startDate).toLocaleDateString()}</p>
+                <p>I {prefacePast} on {new Date(oath.startDate).toLocaleDateString()}</p>
                 {oath.endDate && (
-                  <p>I can resume on {new Date(oath.endDate).toLocaleDateString()}</p>
+                  <p>{oath.preface === 'stop' ? 'I can resume' : 'Goal ends'} on {new Date(oath.endDate).toLocaleDateString()}</p>
                 )}
               </div>
 

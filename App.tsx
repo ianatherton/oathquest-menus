@@ -176,7 +176,21 @@ export default function App() {
 
   const handleCloseSealed = () => {
     setShowSealedModal(false);
+    setNewOath(null);
     setCurrentScreen('home');
+  };
+
+  const handleBackFromSealed = () => {
+    if (newOath) {
+      setOaths((prev) => prev.filter((o) => o.id !== newOath.id)); // remove the oath
+    }
+    setShowSealedModal(false);
+    setNewOath(null);
+    setCurrentScreen('new-oath');
+  };
+
+  const handleDeleteTrophy = (trophyId: string) => {
+    setTrophies((prev) => prev.filter((t) => t.id !== trophyId));
   };
 
   const selectedOath = oaths.find((o) => o.id === selectedOathId);
@@ -224,11 +238,12 @@ export default function App() {
         <OathHalla
           trophies={trophies}
           onBack={() => setCurrentScreen('home')}
+          onDeleteTrophy={handleDeleteTrophy}
         />
       )}
 
       {showSealedModal && newOath && (
-        <OathSealedModal oath={newOath} onClose={handleCloseSealed} />
+        <OathSealedModal oath={newOath} onClose={handleCloseSealed} onBack={handleBackFromSealed} />
       )}
     </div>
   );
