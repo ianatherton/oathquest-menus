@@ -13,6 +13,8 @@ interface Particle {
   type: 'willpower' | 'wellness' | 'wisdom' | 'gold';
   rotateDir: number;
   rotateEnd: number;
+  brightness: number;
+  scale: number;
 }
 
 const PARTICLE_CONFIG = {
@@ -42,7 +44,9 @@ export function OathCard({ oath, onClick }: OathCardProps) {
         const id = particleIdRef.current++;
         const rotateDir = (Math.random() - 0.5) * 40;
         const rotateEnd = (Math.random() - 0.5) * 30;
-        setParticles(p => [...p, { id, type, rotateDir, rotateEnd }]);
+        const brightness = 0.5 + Math.random() * 1.8; // 0.5 to 2.3
+        const scale = 0.6 + Math.random() * 0.9; // 0.6 to 1.5
+        setParticles(p => [...p, { id, type, rotateDir, rotateEnd, brightness, scale }]);
         setTimeout(() => setParticles(p => p.filter(x => x.id !== id)), PARTICLE_CONFIG[type].duration);
       }
       prevValuesRef.current[type] = current;
@@ -72,6 +76,8 @@ export function OathCard({ oath, onClick }: OathCardProps) {
             style={{
               '--rotate-dir': `${p.rotateDir}deg`,
               '--rotate-end': `${p.rotateEnd}deg`,
+              '--brightness': p.brightness,
+              '--scale': p.scale,
             } as React.CSSProperties}
           >
             {PARTICLE_CONFIG[type].symbol}
@@ -107,8 +113,8 @@ export function OathCard({ oath, onClick }: OathCardProps) {
 <span className="text-black flex items-center gap-2 text-sm md:text-base">
           {isComplete && <Trophy className="w-4 h-4" />}
           {isComplete ? '✨' : (
-            <span className={`inline-flex items-center justify-center w-5 h-5 md:w-6 md:h-6 rounded border-2 text-xs md:text-sm ${
-              oath.preface === 'stop' ? 'border-red-600 bg-red-100' : 'border-green-600 bg-green-100'
+            <span className={`inline-flex items-center justify-center w-5 h-5 md:w-6 md:h-6 text-xs md:text-sm drop-shadow-md ${
+              oath.preface === 'stop' ? 'text-red-600' : 'text-green-600'
             }`}>
               <span className="text-[1.5em] drop-shadow-md">{oath.preface === 'stop' ? '🛑' : '🚀'}</span>
             </span>

@@ -15,6 +15,8 @@ interface Particle {
   x: number;
   rotateDir: number;
   rotateEnd: number;
+  brightness: number;
+  scale: number;
 }
 
 export function CurrencyCard({ name, icon, value, color, description, particleSymbol, particleSpeed = 'medium' }: CurrencyCardProps) {
@@ -34,6 +36,8 @@ export function CurrencyCard({ name, icon, value, color, description, particleSy
         x: 15 + Math.random() * 70, // random horizontal position (15-85%)
         rotateDir: (Math.random() - 0.5) * 40, // -20 to +20 degrees
         rotateEnd: (Math.random() - 0.5) * 30, // -15 to +15 degrees
+        brightness: 0.5 + Math.random() * 1.8, // 0.5 to 2.3
+        scale: 0.6 + Math.random() * 0.9, // 0.6 to 1.5
       };
       setParticles(prev => [...prev, newParticle]);
       
@@ -81,6 +85,8 @@ export function CurrencyCard({ name, icon, value, color, description, particleSy
             top: '40%',
             '--rotate-dir': `${p.rotateDir}deg`,
             '--rotate-end': `${p.rotateEnd}deg`,
+            '--brightness': p.brightness,
+            '--scale': p.scale,
           } as React.CSSProperties}
         >
           {particleSymbol}
