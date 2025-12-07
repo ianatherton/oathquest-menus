@@ -1,6 +1,7 @@
 import { Plus, Trophy } from 'lucide-react';
 import { Oath } from '../App';
 import { OathCard } from './OathCard';
+import { AppInfoModal } from './AppInfoModal';
 
 interface HomeScreenProps {
   oaths: Oath[];
@@ -71,6 +72,11 @@ export function HomeScreen({ oaths, trophyCount, onNewOath, onSelectOath, onOpen
             </p>
           </div>
         )}
+
+        {/* App Info Footer */}
+        <div className="mt-12 flex justify-center">
+          <AppInfoModal />
+        </div>
       </div>
     </div>
   );
