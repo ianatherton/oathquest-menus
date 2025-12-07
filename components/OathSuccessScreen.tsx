@@ -1,4 +1,4 @@
-import { Heart, Plus, Brain, Coins, Trophy, Home, ScrollText } from 'lucide-react';
+import { Heart, Leaf, Brain, Coins, Trophy, Home, ScrollText } from 'lucide-react';
 import { Oath } from '../App';
 import { formatNumber } from '../utils/formatNumber';
 
@@ -35,13 +35,13 @@ export function OathSuccessScreen({ oath, onContinue, onViewHalla }: OathSuccess
         {/* Summary Card */}
         <div className="bg-green-900/70 border-4 border-green-950 rounded-xl p-8 mb-8">
           <div className="bg-yellow-400 text-black px-6 py-3 rounded-xl border-4 border-black inline-block mb-6">
-            <span className="text-xl">{oath.habit}</span>
+            <span className="text-xl">{oath.preface === 'stop' ? 'Stopped' : 'Started'} {oath.habit}</span>
           </div>
           
           <div className="text-white text-xl mb-6">
             <p>You kept this oath for <span className="text-glow-green font-bold">{totalDays} days</span></p>
             <p className="text-green-300 text-sm mt-2">
-              Started: {new Date(oath.startDate).toLocaleDateString()}
+              Since: {new Date(oath.startDate).toLocaleDateString()}
             </p>
           </div>
 
@@ -53,7 +53,7 @@ export function OathSuccessScreen({ oath, onContinue, onViewHalla }: OathSuccess
               <div className="text-red-900 text-xs">Willpower</div>
             </div>
             <div className="bg-green-400 p-4 rounded-xl border-4 border-black">
-              <Plus className="w-8 h-8 text-green-900 mx-auto mb-2" />
+              <Leaf className="w-8 h-8 text-green-900 mx-auto mb-2" />
               <div className="text-black font-bold">{formatNumber(oath.currencies.wellness)}</div>
               <div className="text-green-900 text-xs">Wellness</div>
             </div>

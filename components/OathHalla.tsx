@@ -1,4 +1,4 @@
-import { ArrowLeft, Heart, Plus, Brain, Coins, Trophy } from 'lucide-react';
+import { ArrowLeft, Heart, Leaf, Brain, Coins, Trophy } from 'lucide-react';
 import { Trophy as TrophyType } from '../App';
 import { formatNumber } from '../utils/formatNumber';
 
@@ -62,7 +62,7 @@ export function OathHalla({ trophies, onBack }: OathHallaProps) {
                     <div>
                       <h3 className="text-xl text-yellow-100 font-bold flex items-center gap-2">
                         <Trophy className="w-5 h-5 text-yellow-400" />
-                        {trophy.habit}
+                        {trophy.preface === 'stop' ? 'Stopped' : 'Started'} {trophy.habit}
                       </h3>
                       <p className="text-yellow-400 text-sm">
                         Completed: {new Date(trophy.completedDate).toLocaleDateString()}
@@ -80,7 +80,7 @@ export function OathHalla({ trophies, onBack }: OathHallaProps) {
                       <span className="text-black text-sm">{formatNumber(trophy.finalCurrencies.willpower)}</span>
                     </div>
                     <div className="bg-green-400/80 px-3 py-2 rounded-lg border-2 border-black flex items-center gap-2">
-                      <Plus className="w-4 h-4 text-green-900" />
+                      <Leaf className="w-4 h-4 text-green-900" />
                       <span className="text-black text-sm">{formatNumber(trophy.finalCurrencies.wellness)}</span>
                     </div>
                     <div className="bg-blue-400/80 px-3 py-2 rounded-lg border-2 border-black flex items-center gap-2">

@@ -1,4 +1,4 @@
-import { ArrowLeft, Heart, Plus, Brain, Coins, Trash2, Trophy } from 'lucide-react';
+import { ArrowLeft, Heart, Leaf, Brain, Coins, Trash2, Trophy } from 'lucide-react';
 import { Oath } from '../App';
 import { CurrencyCard } from './CurrencyCard';
 
@@ -97,8 +97,8 @@ export function OathDetailScreen({ oath, onBack, onDelete, onComplete }: OathDet
             )}
           </div>
           <div className="text-center text-white/80">
-            <p className="mb-1">I stopped {oath.habit}</p>
-            <p>Started: {new Date(oath.startDate).toLocaleString()}</p>
+            <p className="mb-1">I {oath.preface === 'stop' ? 'stopped' : 'started'} {oath.habit}</p>
+            <p>Since: {new Date(oath.startDate).toLocaleString()}</p>
             {oath.endDate && <p>Ends: {new Date(oath.endDate).toLocaleString()}</p>}
           </div>
         </div>
@@ -127,13 +127,17 @@ export function OathDetailScreen({ oath, onBack, onDelete, onComplete }: OathDet
             value={oath.currencies.willpower}
             color="red"
             description="Your inner strength grows with each passing hour"
+            particleSymbol="❤️"
+            particleSpeed="fast"
           />
           <CurrencyCard
             name="Wellness"
-            icon={<Plus className="w-12 h-12 text-green-900" />}
+            icon={<Leaf className="w-12 h-12 text-green-900" />}
             value={oath.currencies.wellness}
             color="green"
             description="Your body heals and improves over time"
+            particleSymbol="🌿"
+            particleSpeed="medium"
           />
           <CurrencyCard
             name="Wisdom"
@@ -141,6 +145,8 @@ export function OathDetailScreen({ oath, onBack, onDelete, onComplete }: OathDet
             value={oath.currencies.wisdom}
             color="blue"
             description="Knowledge and insight accumulate with persistence"
+            particleSymbol="🧠"
+            particleSpeed="slow"
           />
           <CurrencyCard
             name="Gold"
@@ -148,6 +154,8 @@ export function OathDetailScreen({ oath, onBack, onDelete, onComplete }: OathDet
             value={oath.currencies.gold}
             color="yellow"
             description="The treasure of accomplishment and self-discipline"
+            particleSymbol="🪙"
+            particleSpeed="slow"
           />
         </div>
 

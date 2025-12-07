@@ -3,11 +3,12 @@ import { ArrowLeft } from 'lucide-react';
 
 interface NewOathScreenProps {
   onBack: () => void;
-  onCreateOath: (habit: string, length: 'forever' | number, startTime: string) => void;
+  onCreateOath: (habit: string, preface: 'stop' | 'start', length: 'forever' | number, startTime: string) => void;
 }
 
 export function NewOathScreen({ onBack, onCreateOath }: NewOathScreenProps) {
   const [habit, setHabit] = useState('');
+  const [preface, setPreface] = useState<'stop' | 'start'>('stop');
   const [lengthType, setLengthType] = useState<'forever' | 'for'>('forever');
   const [days, setDays] = useState('');
   const [startMode, setStartMode] = useState<'now' | 'past'>('now');
@@ -29,7 +30,7 @@ export function NewOathScreen({ onBack, onCreateOath }: NewOathScreenProps) {
       time = `${startDate} ${hour}:${minute} ${ampm}`;
     }
 
-    onCreateOath(habit, length, time);
+    onCreateOath(habit, preface, length, time);
   };
 
   return (
@@ -58,18 +59,51 @@ export function NewOathScreen({ onBack, onCreateOath }: NewOathScreenProps) {
             <Plus className="w-24 h-24 text-purple-600" />
           </div>
 
-          {/* Question field */}
+          {/* Preface selection */}
           <div className="space-y-2">
             <label className="text-white block">
               <span className="bg-purple-900/70 px-4 py-2 rounded-lg border-2 border-purple-950 inline-block">
-                I pledge to stop:
+                I pledge to:
+              </span>
+            </label>
+            <div className="flex gap-4">
+              <button
+                type="button"
+                onClick={() => setPreface('stop')}
+                className={`flex-1 px-6 py-4 rounded-xl border-4 border-black transition-colors ${
+                  preface === 'stop'
+                    ? 'bg-red-400 text-black'
+                    : 'bg-purple-900/70 text-white hover:bg-purple-800/70'
+                }`}
+              >
+                🛑 Stop
+              </button>
+              <button
+                type="button"
+                onClick={() => setPreface('start')}
+                className={`flex-1 px-6 py-4 rounded-xl border-4 border-black transition-colors ${
+                  preface === 'start'
+                    ? 'bg-green-400 text-black'
+                    : 'bg-purple-900/70 text-white hover:bg-purple-800/70'
+                }`}
+              >
+                🚀 Start
+              </button>
+            </div>
+          </div>
+
+          {/* Habit field */}
+          <div className="space-y-2">
+            <label className="text-white block">
+              <span className="bg-purple-900/70 px-4 py-2 rounded-lg border-2 border-purple-950 inline-block">
+                {preface === 'stop' ? 'What will you stop?' : 'What will you start?'}
               </span>
             </label>
             <input
               type="text"
               value={habit}
               onChange={(e) => setHabit(e.target.value)}
-              placeholder="eating added sugar"
+              placeholder={preface === 'stop' ? 'eating added sugar' : 'exercising daily'}
               className="w-full px-6 py-4 bg-white rounded-xl border-4 border-black text-black placeholder:text-gray-500"
               required
             />
@@ -160,7 +194,7 @@ export function NewOathScreen({ onBack, onCreateOath }: NewOathScreenProps) {
                     : 'bg-purple-900/70 text-white hover:bg-purple-800/70'
                 }`}
               >
-                <span>I stopped earlier</span>
+                <span>I {preface === 'stop' ? 'stopped' : 'started'} earlier</span>
               </button>
 
               {startMode === 'past' && (

@@ -9,6 +9,7 @@ import { OathHalla } from './components/OathHalla';
 export interface Oath {
   id: string;
   habit: string;
+  preface: 'stop' | 'start';
   startDate: number;
   endDate?: number; // undefined means "forever"
   length: 'forever' | number; // number of days
@@ -25,6 +26,7 @@ export interface Oath {
 export interface Trophy {
   id: string;
   habit: string;
+  preface: 'stop' | 'start';
   startDate: number;
   completedDate: number;
   totalDays: number;
@@ -71,16 +73,16 @@ export default function App() {
 
           // Calculate currency gains based on time
           // Tier 1: Willpower increases every second
-          // Tier 2: Wellness increases every 30 seconds
+          // Tier 2: Wellness increases every 6 seconds
           // Tier 3: Wisdom increases every minute (60 seconds)
-          // Tier 4: Gold increases every 15 minutes (900 seconds)
+          // Tier 4: Gold increases every 10 minutes (600 seconds)
           return {
             ...oath,
             currencies: {
               willpower: oath.currencies.willpower + timeSinceLastUpdate,
-              wellness: oath.currencies.wellness + (timeSinceLastUpdate / 30),
+              wellness: oath.currencies.wellness + (timeSinceLastUpdate / 6),
               wisdom: oath.currencies.wisdom + (timeSinceLastUpdate / 60),
-              gold: oath.currencies.gold + (timeSinceLastUpdate / 900),
+              gold: oath.currencies.gold + (timeSinceLastUpdate / 600),
             },
             lastUpdated: now,
           };
@@ -91,7 +93,7 @@ export default function App() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleCreateOath = (habit: string, length: 'forever' | number, startTime: string) => {
+  const handleCreateOath = (habit: string, preface: 'stop' | 'start', length: 'forever' | number, startTime: string) => {
     const now = Date.now();
     let startDate: number;
     let initialCurrencies = {
@@ -127,15 +129,16 @@ export default function App() {
       // Calculate initial currencies based on elapsed time
       initialCurrencies = {
         willpower: elapsedSeconds, // +1 per second
-        wellness: elapsedSeconds / 30, // +1 per 30 seconds
+        wellness: elapsedSeconds / 6, // +1 per 6 seconds
         wisdom: elapsedSeconds / 60, // +1 per minute
-        gold: elapsedSeconds / 900, // +1 per 15 minutes
+        gold: elapsedSeconds / 600, // +1 per 10 minutes
       };
     }
 
     const oath: Oath = {
       id: `oath-${now}`,
       habit,
+      preface,
       startDate,
       endDate: length === 'forever' ? undefined : startDate + length * 24 * 60 * 60 * 1000,
       length,
@@ -159,6 +162,7 @@ export default function App() {
     const trophy: Trophy = {
       id: `trophy-${Date.now()}`,
       habit: oath.habit,
+      preface: oath.preface,
       startDate: oath.startDate,
       completedDate: Date.now(),
       totalDays,

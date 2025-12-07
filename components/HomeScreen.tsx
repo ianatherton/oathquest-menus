@@ -56,7 +56,7 @@ export function HomeScreen({ oaths, trophyCount, onNewOath, onSelectOath, onOpen
               <p className="text-purple-200">Create your first oath to begin your journey!</p>
             </div>
           ) : (
-            oaths.map((oath) => (
+            [...oaths].reverse().map((oath) => (
               <OathCard key={oath.id} oath={oath} onClick={() => onSelectOath(oath.id)} />
             ))
           )}
