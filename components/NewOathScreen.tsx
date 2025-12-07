@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, Download } from 'lucide-react';
+import { parseOathHash } from '../utils/oathHash';
 
 const BADGES = [
   '🛡️', // shield (default)
@@ -27,9 +28,10 @@ const BADGES = [
 interface NewOathScreenProps {
   onBack: () => void;
   onCreateOath: (habit: string, preface: 'stop' | 'start', length: 'forever' | number, startTime: string, badge: string) => void;
+  onImportOath: (habit: string, preface: 'stop' | 'start', length: 'forever' | number, startDate: number, badge: string) => void;
 }
 
-export function NewOathScreen({ onBack, onCreateOath }: NewOathScreenProps) {
+export function NewOathScreen({ onBack, onCreateOath, onImportOath }: NewOathScreenProps) {
   const [habit, setHabit] = useState('');
   const [preface, setPreface] = useState<'stop' | 'start'>('stop');
   const [lengthType, setLengthType] = useState<'forever' | 'for'>('forever');
@@ -40,6 +42,19 @@ export function NewOathScreen({ onBack, onCreateOath }: NewOathScreenProps) {
   const [minute, setMinute] = useState('00');
   const [ampm, setAmpm] = useState<'AM' | 'PM'>('PM');
   const [badgeIndex, setBadgeIndex] = useState(0);
+  const [showImport, setShowImport] = useState(false);
+  const [importHash, setImportHash] = useState('');
+  const [importError, setImportError] = useState('');
+
+  const handleImport = () => {
+    setImportError('');
+    const parsed = parseOathHash(importHash);
+    if (!parsed) {
+      setImportError('Invalid oath hash');
+      return;
+    }
+    onImportOath(parsed.habit, parsed.preface, parsed.length, parsed.startDate, parsed.badge);
+  };
 
   const prevBadge = () => setBadgeIndex((i) => (i - 1 + BADGES.length) % BADGES.length);
   const nextBadge = () => setBadgeIndex((i) => (i + 1) % BADGES.length);
@@ -77,7 +92,48 @@ export function NewOathScreen({ onBack, onCreateOath }: NewOathScreenProps) {
           <div className="bg-yellow-400 text-black px-8 py-4 rounded-xl border-4 border-black shadow-lg flex-1 text-center">
             <span>New Oath</span>
           </div>
+          <button
+            onClick={() => setShowImport(!showImport)}
+            className={`p-4 rounded-full border-4 transition-colors ${
+              showImport 
+                ? 'bg-yellow-400 border-black' 
+                : 'bg-purple-900 border-purple-950 hover:bg-purple-800'
+            }`}
+            title="Import Oath"
+          >
+            <Download className={`w-6 h-6 ${showImport ? 'text-black' : 'text-white'}`} />
+          </button>
         </div>
+
+        {/* Import Hash Section - hidden by default */}
+        {showImport && (
+          <div className="bg-purple-900/50 border-4 border-purple-950 rounded-xl p-6 mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <Download className="w-5 h-5 text-white" />
+              <span className="text-white font-medium">Import from Hash</span>
+            </div>
+            <div className="flex gap-3">
+              <input
+                type="text"
+                value={importHash}
+                onChange={(e) => { setImportHash(e.target.value); setImportError(''); }}
+                placeholder="Paste oath hash here..."
+                className="flex-1 px-4 py-3 bg-white rounded-xl border-4 border-black text-black placeholder:text-gray-500 text-sm"
+              />
+              <button
+                type="button"
+                onClick={handleImport}
+                disabled={!importHash.trim()}
+                className="bg-yellow-400 text-black px-6 py-3 rounded-xl border-4 border-black shadow-lg hover:bg-yellow-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+              >
+                Add Oath
+              </button>
+            </div>
+            {importError && (
+              <p className="text-red-400 text-sm mt-2">{importError}</p>
+            )}
+          </div>
+        )}
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -147,6 +203,7 @@ export function NewOathScreen({ onBack, onCreateOath }: NewOathScreenProps) {
               value={habit}
               onChange={(e) => setHabit(e.target.value)}
               placeholder={preface === 'stop' ? 'eating added sugar' : 'exercising daily'}
+              maxLength={60}
               className="w-full px-6 py-4 bg-white rounded-xl border-4 border-black text-black placeholder:text-gray-500"
               required
             />

@@ -1,6 +1,8 @@
-import { ArrowLeft, Heart, Leaf, Brain, Trash2, Trophy } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowLeft, Heart, Leaf, Brain, Trash2, Trophy, Copy, Check, ChevronDown, ChevronUp } from 'lucide-react';
 import { Oath } from '../App';
 import { CurrencyCard } from './CurrencyCard';
+import { generateOathHash } from '../utils/oathHash';
 
 interface OathDetailScreenProps {
   oath: Oath;
@@ -10,6 +12,25 @@ interface OathDetailScreenProps {
 }
 
 export function OathDetailScreen({ oath, onBack, onDelete, onComplete }: OathDetailScreenProps) {
+  const [showHash, setShowHash] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const oathLength = oath.length ?? (oath.endDate ? Math.round((oath.endDate - oath.startDate) / (24 * 60 * 60 * 1000)) : 'forever'); // fallback for old oaths
+
+  const oathHash = generateOathHash({
+    habit: oath.habit,
+    preface: oath.preface,
+    badge: oath.badge || '🛡️',
+    startDate: oath.startDate,
+    length: oathLength,
+  });
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(oathHash);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   const getTimeElapsed = () => {
     const now = Date.now();
     const elapsed = now - oath.startDate;
@@ -157,6 +178,35 @@ export function OathDetailScreen({ oath, onBack, onDelete, onComplete }: OathDet
             particleSymbol="🦋"
             particleSpeed="slow"
           />
+        </div>
+
+        {/* Sync Hash Section */}
+        <div className="bg-purple-900/50 border-4 border-purple-950 rounded-xl mb-8">
+          <button
+            onClick={() => setShowHash(!showHash)}
+            className="w-full px-6 py-4 flex items-center justify-between text-white hover:bg-purple-800/30 transition-colors rounded-xl"
+          >
+            <span className="text-white/80">Sync Hash</span>
+            {showHash ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+          </button>
+          {showHash && (
+            <div className="px-6 pb-6 space-y-3">
+              <p className="text-white/60 text-sm">Use this hash to track this oath on another device</p>
+              <div className="flex gap-2">
+                <code className="flex-1 bg-black/30 px-4 py-3 rounded-lg text-white/90 text-sm break-all font-mono">
+                  {oathHash}
+                </code>
+                <button
+                  onClick={handleCopy}
+                  className={`px-4 py-3 rounded-lg border-2 border-black transition-colors flex items-center gap-2 ${
+                    copied ? 'bg-green-500 text-white' : 'bg-yellow-400 text-black hover:bg-yellow-300'
+                  }`}
+                >
+                  {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Break Oath Button - hidden when oath is complete */}

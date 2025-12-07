@@ -155,6 +155,32 @@ export default function App() {
     setShowSealedModal(true);
   };
 
+  const handleImportOath = (habit: string, preface: 'stop' | 'start', length: 'forever' | number, startDate: number, badge: string) => {
+    const now = Date.now();
+    const elapsedSeconds = (now - startDate) / 1000;
+
+    const oath: Oath = {
+      id: `oath-${now}`,
+      habit,
+      preface,
+      badge,
+      startDate,
+      endDate: length === 'forever' ? undefined : startDate + length * 24 * 60 * 60 * 1000,
+      length,
+      startTime: 'imported',
+      currencies: {
+        willpower: Math.max(0, elapsedSeconds),
+        wellness: Math.max(0, elapsedSeconds / 6),
+        wisdom: Math.max(0, elapsedSeconds / 60),
+        gold: Math.max(0, elapsedSeconds / 600),
+      },
+      lastUpdated: now,
+    };
+
+    setOaths((prev) => [...prev, oath]);
+    setCurrentScreen('home');
+  };
+
   const handleDeleteOath = (oathId: string) => {
     setOaths((prev) => prev.filter((o) => o.id !== oathId));
     setCurrentScreen('home');
@@ -217,6 +243,7 @@ export default function App() {
         <NewOathScreen
           onBack={() => setCurrentScreen('home')}
           onCreateOath={handleCreateOath}
+          onImportOath={handleImportOath}
         />
       )}
 
