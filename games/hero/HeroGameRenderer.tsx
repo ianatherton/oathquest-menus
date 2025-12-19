@@ -98,6 +98,9 @@ export default function HeroGameRenderer({ oath }: HeroGameRendererProps) {
       if (sceneRef.current) {
         sceneRef.current.dispose();
       }
+      if (gameRef.current) {
+        gameRef.current.dispose();
+      }
     };
   }, [oath]);
 
@@ -245,13 +248,21 @@ export default function HeroGameRenderer({ oath }: HeroGameRendererProps) {
         </div>
       )}
 
-      {/* Skill Tree Button */}
-      <button
-        className="absolute top-4 right-4 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg"
-        onClick={() => {/* TODO: Open skill tree modal */}}
-      >
-        Skills ({gameState?.hero.stats.skillPoints || 0})
-      </button>
+      {/* Control Buttons */}
+      <div className="absolute top-4 right-4 space-y-2">
+        <button
+          className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg block"
+          onClick={() => {/* TODO: Open skill tree modal */}}
+        >
+          Skills ({gameState?.hero.stats.skillPoints || 0})
+        </button>
+        <button
+          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg block"
+          onClick={() => gameRef.current?.saveProgressNow()}
+        >
+          💾 Save
+        </button>
+      </div>
     </div>
   );
 }

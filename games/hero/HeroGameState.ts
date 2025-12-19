@@ -3,6 +3,7 @@
  */
 
 import { Oath } from '../../App';
+import { GamePersistence } from '../persistence/GamePersistence';
 
 export interface Vector2 {
   x: number;
@@ -101,25 +102,49 @@ export interface HeroGameState {
 export class HeroGameManager {
   private oath: Oath;
   private state: HeroGameState;
+  private persistence: GamePersistence;
   private onStateChange?: (state: HeroGameState) => void;
+  private autoSaveTimer: number | null = null;
 
   constructor(oath: Oath) {
     this.oath = oath;
+    this.persistence = new GamePersistence(oath.id, 'hero');
     this.state = this.initializeGameState();
+
+    // Auto-save every 30 seconds
+    this.autoSaveTimer = window.setInterval(() => {
+      this.saveProgress();
+    }, 30000);
   }
 
   private initializeGameState(): HeroGameState {
-    // Calculate level from willpower (each 100 willpower = 1 level)
-    const heroLevel = Math.floor(this.oath.currencies.willpower / 100) + 1;
-    const skillPoints = heroLevel; // 1 skill point per level
+    // Try to load saved progress first
+    const savedProgress = this.persistence.loadHeroProgress();
+
+    // Calculate base level from willpower (each 100 willpower = 1 level)
+    const baseHeroLevel = Math.floor(this.oath.currencies.willpower / 100) + 1;
+
+    // Use saved level if it's higher (player progress), otherwise use base level
+    const heroLevel = savedProgress?.hero.stats.level
+      ? Math.max(baseHeroLevel, savedProgress.hero.stats.level)
+      : baseHeroLevel;
+
+    const skillPoints = savedProgress?.hero.stats.skillPoints ?? heroLevel;
+
+    // Merge saved skills with defaults
+    const defaultSkills = this.getDefaultSkills();
+    const mergedSkills = defaultSkills.map(defaultSkill => {
+      const savedSkill = savedProgress?.hero.skills.find(s => s.id === defaultSkill.id);
+      return savedSkill ? { ...defaultSkill, ...savedSkill } : defaultSkill;
+    });
 
     return {
       hero: {
         position: { x: 0, z: 0 },
         stats: {
           level: heroLevel,
-          experience: Math.floor(this.oath.currencies.willpower),
-          experienceToNext: (heroLevel) * 100,
+          experience: savedProgress?.hero.stats.experience ?? Math.floor(this.oath.currencies.willpower),
+          experienceToNext: heroLevel * 100,
           skillPoints: skillPoints,
           health: 100 + (heroLevel - 1) * 20,
           maxHealth: 100 + (heroLevel - 1) * 20,
@@ -128,14 +153,14 @@ export class HeroGameManager {
           attack: 10 + (heroLevel - 1) * 2,
           defense: 5 + (heroLevel - 1) * 1,
         },
-        equippedWeapon: null,
-        equippedArmor: [],
-        skills: this.getDefaultSkills(),
+        equippedWeapon: savedProgress?.hero.equippedWeapon ?? null,
+        equippedArmor: savedProgress?.hero.equippedArmor ?? [],
+        skills: mergedSkills,
       },
       enemies: this.generateEnemies(),
       area: {
         size: { width: 50, height: 50 },
-        enemiesDefeated: 0,
+        enemiesDefeated: savedProgress?.area.enemiesDefeated ?? 0,
       },
       combat: {
         isInCombat: false,
@@ -224,6 +249,32 @@ export class HeroGameManager {
   private updateState(newState: Partial<HeroGameState>): void {
     this.state = { ...this.state, ...newState };
     this.onStateChange?.(this.state);
+  }
+
+  /**
+   * Save current progress to localStorage
+   */
+  private saveProgress(): void {
+    this.persistence.saveHeroProgress(this.state);
+  }
+
+  /**
+   * Manually save progress (for important events like level ups)
+   */
+  public saveProgressNow(): void {
+    this.saveProgress();
+  }
+
+  /**
+   * Cleanup resources
+   */
+  public dispose(): void {
+    if (this.autoSaveTimer) {
+      clearInterval(this.autoSaveTimer);
+      this.autoSaveTimer = null;
+    }
+    // Final save on dispose
+    this.saveProgress();
   }
 
   // Movement
