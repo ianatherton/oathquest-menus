@@ -14,7 +14,7 @@ interface HeroGameRendererProps {
   oath: Oath;
 }
 
-export default function HeroGameRenderer({ oath }: HeroGameRendererProps) {
+export default React.memo(function HeroGameRenderer({ oath }: HeroGameRendererProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameRef = useRef<HeroGameManager | null>(null);
   const engineRef = useRef<GameEngine | null>(null);
@@ -25,20 +25,19 @@ export default function HeroGameRenderer({ oath }: HeroGameRendererProps) {
   // Initialize game
   useEffect(() => {
     const initGame = async () => {
-      if (!canvasRef.current) return;
+      if (!canvasRef.current) {
+        console.error('HeroGameRenderer: No canvas element found');
+        return;
+      }
 
       try {
-        console.log('Initializing hero game...');
-
         // Initialize game manager
         const gameManager = new HeroGameManager(oath);
         gameRef.current = gameManager;
-        console.log('Game manager created');
 
         // Load sprite atlas (optional - game works without it)
         try {
           await loadEnvironmentAtlas();
-          console.log('Sprite atlas loaded');
         } catch (spriteError) {
           console.warn('Failed to load sprite atlas, using fallback:', spriteError);
         }
@@ -46,9 +45,9 @@ export default function HeroGameRenderer({ oath }: HeroGameRendererProps) {
         // Create Three.js scene
         const canvas = canvasRef.current;
         const rect = canvas.getBoundingClientRect();
+
         const resources = createGameScene(canvas, rect.width, rect.height);
         sceneRef.current = resources;
-        console.log('Three.js scene created');
 
         // Create hero sprite
         const heroSprite = createHeroSprite();
@@ -58,13 +57,10 @@ export default function HeroGameRenderer({ oath }: HeroGameRendererProps) {
 
         // Create sprites based on game mode
         const gameState = gameManager.getState();
-        console.log('Game state:', gameState);
 
         if (gameState.gameMode === 'combat') {
-          console.log('Creating combat sprites');
           // Create enemy sprites for combat
           const enemies = gameState.enemies;
-          console.log('Enemies to create:', enemies.length);
           for (const enemy of enemies) {
             const enemySprite = createEnemySprite(enemy);
             if (enemySprite) {
@@ -73,11 +69,9 @@ export default function HeroGameRenderer({ oath }: HeroGameRendererProps) {
             }
           }
         } else {
-          console.log('Creating overworld sprites');
           // Create navigation nodes for overworld
           const overworldManager = gameManager.getOverworldManager();
           const nodes = overworldManager.getAvailableNodes();
-          console.log('Navigation nodes to create:', nodes.length);
           for (const node of nodes) {
             const nodeSprite = createNavigationNode(node);
             if (nodeSprite) {
@@ -89,7 +83,6 @@ export default function HeroGameRenderer({ oath }: HeroGameRendererProps) {
 
         // Setup input handling
         setupInputHandling(canvas, resources.camera, gameManager);
-        console.log('Input handling set up');
 
         // Setup game engine
         engineRef.current = gameEngine;
@@ -100,26 +93,21 @@ export default function HeroGameRenderer({ oath }: HeroGameRendererProps) {
         gameEngine.addRenderCallback(() => {
           resources.renderer.render(resources.scene, resources.camera);
         });
-        console.log('Game engine set up');
 
         // Set state change callback
         gameManager.setStateChangeCallback((newState) => {
-          console.log('Game state changed:', newState.gameMode);
           setGameState({ ...newState });
 
           // Handle mode changes by clearing and recreating scene objects
           if (newState.gameMode !== gameState?.gameMode) {
-            console.log('Mode changed from', gameState?.gameMode, 'to', newState.gameMode);
             // Clear existing game objects
             const objectsToRemove = resources.scene.children.filter(obj =>
               obj.userData.isHero || obj.userData.enemyId || obj.userData.nodeId
             );
             objectsToRemove.forEach(obj => resources.scene.remove(obj));
-            console.log('Cleared', objectsToRemove.length, 'objects');
 
             // Recreate objects for new mode
             if (newState.gameMode === 'combat') {
-              console.log('Recreating combat objects');
               // Add hero
               const heroSprite = createHeroSprite();
               if (heroSprite) {
@@ -135,7 +123,6 @@ export default function HeroGameRenderer({ oath }: HeroGameRendererProps) {
                 }
               }
             } else {
-              console.log('Recreating overworld objects');
               // Add navigation nodes
               const overworldManager = gameManager.getOverworldManager();
               const nodes = overworldManager.getAvailableNodes();
@@ -155,11 +142,9 @@ export default function HeroGameRenderer({ oath }: HeroGameRendererProps) {
 
         // Start the engine
         gameEngine.start();
-        console.log('Game engine started');
 
         setGameState(gameState);
         setIsLoading(false);
-        console.log('Hero game initialization complete');
 
       } catch (error) {
         console.error('Failed to initialize hero game:', error);
@@ -181,56 +166,68 @@ export default function HeroGameRenderer({ oath }: HeroGameRendererProps) {
         gameRef.current.dispose();
       }
     };
-  }, [oath]);
+  }, [oath.id]); // Use oath.id instead of full oath object to prevent infinite re-renders
 
   const createHeroSprite = (): THREE.Mesh | null => {
-    console.log('Creating hero sprite');
-    // Create a simple colored quad for now (works without sprites)
-    const geometry = new THREE.PlaneGeometry(1, 1);
-    const material = new THREE.MeshLambertMaterial({ color: 0x00ff00 });
-    const mesh = new THREE.Mesh(geometry, material);
+    try {
+      // Create a simple colored quad for now (works without sprites)
+      const geometry = new THREE.PlaneGeometry(1, 1);
+      const material = new THREE.MeshLambertMaterial({ color: 0x00ff00 });
+      const mesh = new THREE.Mesh(geometry, material);
 
-    mesh.position.set(0, 0.5, 0);
-    mesh.userData.isHero = true;
+      mesh.position.set(0, 0.5, 0);
+      mesh.userData.isHero = true;
 
-    return mesh;
+      return mesh;
+    } catch (error) {
+      console.error('Failed to create hero sprite:', error);
+      return null;
+    }
   };
 
   const createEnemySprite = (enemy: any): THREE.Mesh | null => {
-    console.log('Creating enemy sprite for enemy:', enemy.id);
-    // Create a simple colored quad for now (works without sprites)
-    const geometry = new THREE.PlaneGeometry(0.8, 0.8);
-    const material = new THREE.MeshLambertMaterial({ color: 0xff0000 });
-    const mesh = new THREE.Mesh(geometry, material);
+    try {
+      // Create a simple colored quad for now (works without sprites)
+      const geometry = new THREE.PlaneGeometry(0.8, 0.8);
+      const material = new THREE.MeshLambertMaterial({ color: 0xff0000 });
+      const mesh = new THREE.Mesh(geometry, material);
 
-    mesh.position.set(enemy.position.x, 0.4, enemy.position.z);
-    mesh.userData.enemyId = enemy.id;
+      mesh.position.set(enemy.position.x, 0.4, enemy.position.z);
+      mesh.userData.enemyId = enemy.id;
 
-    return mesh;
+      return mesh;
+    } catch (error) {
+      console.error('Failed to create enemy sprite for', enemy.id, ':', error);
+      return null;
+    }
   };
 
   const createNavigationNode = (node: any): THREE.Mesh | null => {
-    console.log('Creating navigation node:', node.id, node.type);
-    const geometry = new THREE.PlaneGeometry(2, 2);
-    const colors = {
-      town: 0x00ff00,     // Green for town
-      forest: 0x008000,   // Dark green for forest
-      dungeon: 0x800080,  // Purple for dungeon
-      mountain: 0x808080, // Gray for mountain
-      lake: 0x0080ff,     // Blue for lake
-    };
-    const material = new THREE.MeshLambertMaterial({
-      color: colors[node.type] || 0xffffff,
-      transparent: true,
-      opacity: node.isExplored ? 1.0 : 0.7
-    });
-    const mesh = new THREE.Mesh(geometry, material);
+    try {
+      const geometry = new THREE.PlaneGeometry(2, 2);
+      const colors = {
+        town: 0x00ff00,     // Green for town
+        forest: 0x008000,   // Dark green for forest
+        dungeon: 0x800080,  // Purple for dungeon
+        mountain: 0x808080, // Gray for mountain
+        lake: 0x0080ff,     // Blue for lake
+      };
+      const material = new THREE.MeshLambertMaterial({
+        color: colors[node.type] || 0xffffff,
+        transparent: true,
+        opacity: node.isExplored ? 1.0 : 0.7
+      });
+      const mesh = new THREE.Mesh(geometry, material);
 
-    mesh.position.set(node.position.x, 0.1, node.position.y);
-    mesh.rotation.x = -Math.PI / 2; // Lay flat on ground
-    mesh.userData.nodeId = node.id;
+      mesh.position.set(node.position.x, 0.1, node.position.y);
+      mesh.rotation.x = -Math.PI / 2; // Lay flat on ground
+      mesh.userData.nodeId = node.id;
 
-    return mesh;
+      return mesh;
+    } catch (error) {
+      console.error('Failed to create navigation node for', node.id, ':', error);
+      return null;
+    }
   };
 
   const setupInputHandling = (canvas: HTMLCanvasElement, camera: THREE.Camera, gameManager: HeroGameManager) => {
@@ -320,48 +317,18 @@ export default function HeroGameRenderer({ oath }: HeroGameRendererProps) {
       }
 
       // Update navigation nodes
-      const overworldManager = gameManager.getOverworldManager();
-      const nodes = overworldManager.getAvailableNodes();
-      for (const node of nodes) {
-        const nodeObject = scene.children.find(obj => obj.userData.nodeId === node.id);
-        if (nodeObject) {
-          // Could add visual updates based on node state
+      const overworldManager = gameRef.current?.getOverworldManager();
+      if (overworldManager) {
+        const nodes = overworldManager.getAvailableNodes();
+        for (const node of nodes) {
+          const nodeObject = scene.children.find(obj => obj.userData.nodeId === node.id);
+          if (nodeObject) {
+            // Could add visual updates based on node state
+          }
         }
       }
     }
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center p-8 min-h-96">
-        <div className="text-white text-center">
-          <div className="text-xl mb-2">Loading Hero Game...</div>
-          <div className="text-sm text-gray-300">Preparing your adventure</div>
-          <div className="mt-4 text-xs text-gray-400">
-            Check browser console (F12) for any errors
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Fallback if game fails to load
-  if (!gameState) {
-    return (
-      <div className="flex items-center justify-center p-8 min-h-96">
-        <div className="text-white text-center">
-          <div className="text-xl mb-2 text-red-400">Failed to Load Hero Game</div>
-          <div className="text-sm text-gray-300">Check browser console for errors</div>
-          <button
-            className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-            onClick={() => window.location.reload()}
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="relative w-full h-full">
@@ -370,6 +337,35 @@ export default function HeroGameRenderer({ oath }: HeroGameRendererProps) {
         className="w-full h-full border border-gray-600"
         style={{ aspectRatio: '16/9' }}
       />
+
+      {/* Loading Overlay */}
+      {isLoading && (
+        <div className="absolute inset-0 bg-black/80 flex items-center justify-center">
+          <div className="text-white text-center">
+            <div className="text-xl mb-2">Loading Hero Game...</div>
+            <div className="text-sm text-gray-300">Preparing your adventure</div>
+            <div className="mt-4 text-xs text-gray-400">
+              Check browser console (F12) for any errors
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Error Overlay */}
+      {!isLoading && !gameState && (
+        <div className="absolute inset-0 bg-black/80 flex items-center justify-center">
+          <div className="text-white text-center">
+            <div className="text-xl mb-2 text-red-400">Failed to Load Hero Game</div>
+            <div className="text-sm text-gray-300">Check browser console for errors</div>
+            <button
+              className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+              onClick={() => window.location.reload()}
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* HUD Overlay */}
       {gameState && (
@@ -462,4 +458,4 @@ export default function HeroGameRenderer({ oath }: HeroGameRendererProps) {
       </div>
     </div>
   );
-}
+});
