@@ -60,13 +60,16 @@ class SpriteLoader {
 
   private async loadAtlasInternal(atlasName: string, jsonPath: string, texturePath: string): Promise<SpriteAtlas> {
     try {
+      console.log(`Loading atlas ${atlasName} from ${jsonPath}`);
+
       // Load JSON data
       const response = await fetch(jsonPath);
       if (!response.ok) {
-        throw new Error(`Failed to load atlas JSON: ${jsonPath}`);
+        throw new Error(`Failed to load atlas JSON: ${jsonPath} (${response.status})`);
       }
 
       const frames: SpriteFrame[] = await response.json();
+      console.log(`Loaded ${frames.length} frames from atlas`);
       const frameMap = new Map<string, SpriteUV>();
 
       // Get texture dimensions (we'll need to load the image to get this)
