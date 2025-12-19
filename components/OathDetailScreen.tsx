@@ -1,8 +1,13 @@
-import { useState } from 'react';
-import { ArrowLeft, Heart, Leaf, Brain, Trash2, Trophy, Copy, Check, ChevronDown, ChevronUp } from 'lucide-react';
+import { useState, Suspense, lazy } from 'react';
+import { ArrowLeft, Heart, Leaf, Brain, Trash2, Trophy, Copy, Check, ChevronDown, ChevronUp, Sword, Heart as HeartIcon } from 'lucide-react';
 import { Oath } from '../App';
 import { CurrencyCard } from './CurrencyCard';
 import { generateOathHash } from '../utils/oathHash';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs';
+
+// Lazy load game components
+const OathHeroGame = lazy(() => import('../games/OathHeroGame').catch(() => ({ default: () => <div>Hero Game Coming Soon...</div> })));
+const OathPetGame = lazy(() => import('../games/OathPetGame').catch(() => ({ default: () => <div>Pet Game Coming Soon...</div> })));
 
 interface OathDetailScreenProps {
   oath: Oath;
@@ -14,6 +19,7 @@ interface OathDetailScreenProps {
 export function OathDetailScreen({ oath, onBack, onDelete, onComplete }: OathDetailScreenProps) {
   const [showHash, setShowHash] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
 
   const oathLength = oath.length ?? (oath.endDate ? Math.round((oath.endDate - oath.startDate) / (24 * 60 * 60 * 1000)) : 'forever'); // fallback for old oaths
 
@@ -77,7 +83,7 @@ export function OathDetailScreen({ oath, onBack, onDelete, onComplete }: OathDet
   };
 
   return (
-    <div className="min-h-screen p-6" style={{ 
+    <div className="min-h-screen p-6" style={{
       backgroundImage: 'repeating-linear-gradient(90deg, rgba(139, 92, 246, 0.3) 0px, rgba(139, 92, 246, 0.3) 40px, rgba(126, 34, 206, 0.3) 40px, rgba(126, 34, 206, 0.3) 80px)',
       backgroundColor: '#7e22ce'
     }}>
@@ -95,14 +101,31 @@ export function OathDetailScreen({ oath, onBack, onDelete, onComplete }: OathDet
           </div>
         </div>
 
-        {/* Oath Info */}
-        <div className="relative">
-          {/* Large oath icon - overlapping behind */}
-          <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-0">
-            <span className="text-[8rem] drop-shadow-[0_8px_16px_rgba(0,0,0,0.4)] opacity-90">
-              {oath.badge || '🛡️'}
-            </span>
-          </div>
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-3 mb-8">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="hero" className="flex items-center gap-2">
+              <Sword className="w-4 h-4" />
+              Hero
+            </TabsTrigger>
+            <TabsTrigger value="pet" className="flex items-center gap-2">
+              <HeartIcon className="w-4 h-4" />
+              Pet
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="space-y-8">
+
+            {/* Oath Info */}
+            <div className="relative">
+              {/* Large oath icon - overlapping behind */}
+              <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-0">
+                <span className="text-[8rem] drop-shadow-[0_8px_16px_rgba(0,0,0,0.4)] opacity-90">
+                  {oath.badge || '🛡️'}
+                </span>
+              </div>
         <div className="bg-purple-900/70 border-4 border-purple-950 rounded-xl p-8 mb-8 relative z-10 mt-16">
           <div className="flex items-center justify-between mb-6">
             <div className="text-center flex-1">
@@ -217,16 +240,32 @@ export function OathDetailScreen({ oath, onBack, onDelete, onComplete }: OathDet
           )}
         </div>
 
-        {/* Break Oath Button - hidden when oath is complete */}
-        {!isComplete && (
-          <button
-            onClick={handleDelete}
-            className="w-full bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-xl border-4 border-black shadow-lg transition-colors flex items-center justify-center gap-2"
-          >
-            <Trash2 className="w-5 h-5" />
-            <span>Break Oath (Delete)</span>
-          </button>
-        )}
+            {/* Break Oath Button - hidden when oath is complete */}
+            {!isComplete && (
+              <button
+                onClick={handleDelete}
+                className="w-full bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-xl border-4 border-black shadow-lg transition-colors flex items-center justify-center gap-2"
+              >
+                <Trash2 className="w-5 h-5" />
+                <span>Break Oath (Delete)</span>
+              </button>
+            )}
+          </TabsContent>
+
+          {/* Hero Game Tab */}
+          <TabsContent value="hero">
+            <Suspense fallback={<div className="flex items-center justify-center p-8"><div className="text-white">Loading Hero Game...</div></div>}>
+              <OathHeroGame oath={oath} />
+            </Suspense>
+          </TabsContent>
+
+          {/* Pet Game Tab */}
+          <TabsContent value="pet">
+            <Suspense fallback={<div className="flex items-center justify-center p-8"><div className="text-white">Loading Pet Game...</div></div>}>
+              <OathPetGame oath={oath} />
+            </Suspense>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
