@@ -4,6 +4,7 @@
 
 import { Oath } from '../../App';
 import { GamePersistence } from '../persistence/GamePersistence';
+import { OverworldManager, OverworldState } from '../overworld/OverworldState';
 
 export interface Vector2 {
   x: number;
@@ -97,19 +98,28 @@ export interface HeroGameState {
     isMoving: boolean;
     moveSpeed: number;
   };
+  overworld: OverworldState;
+  gameMode: 'overworld' | 'combat';
 }
 
 export class HeroGameManager {
   private oath: Oath;
   private state: HeroGameState;
   private persistence: GamePersistence;
+  private overworldManager: OverworldManager;
   private onStateChange?: (state: HeroGameState) => void;
   private autoSaveTimer: number | null = null;
 
   constructor(oath: Oath) {
     this.oath = oath;
     this.persistence = new GamePersistence(oath.id, 'hero');
+    this.overworldManager = new OverworldManager();
     this.state = this.initializeGameState();
+
+    // Connect overworld state changes
+    this.overworldManager.setStateChangeCallback((overworldState) => {
+      this.updateState({ overworld: overworldState });
+    });
 
     // Auto-save every 30 seconds
     this.autoSaveTimer = window.setInterval(() => {
@@ -173,6 +183,8 @@ export class HeroGameManager {
         isMoving: false,
         moveSpeed: 5, // units per second
       },
+      overworld: this.overworldManager.getState(),
+      gameMode: 'overworld', // Start in overworld mode
     };
   }
 
@@ -463,10 +475,68 @@ export class HeroGameManager {
     return true;
   }
 
+  // Game mode switching
+  switchToCombatMode(): void {
+    this.updateState({
+      gameMode: 'combat',
+      // Generate new enemies for the current area
+      enemies: this.generateEnemies(),
+    });
+  }
+
+  switchToOverworldMode(): void {
+    this.updateState({
+      gameMode: 'overworld',
+      combat: {
+        ...this.state.combat,
+        isInCombat: false,
+        targetEnemy: null,
+      },
+      navigation: {
+        ...this.state.navigation,
+        targetPosition: null,
+        isMoving: false,
+      },
+    });
+  }
+
+  // Travel to a different area
+  travelToArea(nodeId: string): { success: boolean; reason?: string } {
+    const result = this.overworldManager.travelToNode(nodeId, this.state.hero.stats.level);
+    if (result.success && result.areaId) {
+      this.updateState({
+        overworld: this.overworldManager.getState(),
+      });
+
+      // If it's a combat area, switch to combat mode
+      const area = this.overworldManager.getCurrentArea();
+      if (area && area.type !== 'town') {
+        this.switchToCombatMode();
+      }
+    }
+    return result;
+  }
+
+  // Get overworld methods
+  getOverworldManager(): OverworldManager {
+    return this.overworldManager;
+  }
+
+  // Check for newly unlocked nodes based on level progress
+  checkNodeUnlocks(): void {
+    this.overworldManager.checkNodeUnlocks(
+      this.state.hero.stats.level,
+      this.state.area.enemiesDefeated
+    );
+  }
+
   // Update loop - called by game engine
   update(deltaTime: number): void {
-    this.updateMovement(deltaTime);
-    this.updateCombat(deltaTime);
+    if (this.state.gameMode === 'combat') {
+      this.updateMovement(deltaTime);
+      this.updateCombat(deltaTime);
+    }
+    // Overworld mode doesn't need continuous updates for now
   }
 
   private updateMovement(deltaTime: number): void {
