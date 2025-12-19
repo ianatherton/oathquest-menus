@@ -93,6 +93,7 @@ export class GamePersistence {
 
       return {
         hero: {
+          position: { x: 0, z: 0 },
           stats: {
             level: progress.hero.heroLevel,
             experience: progress.hero.experience,
@@ -110,6 +111,7 @@ export class GamePersistence {
           equippedArmor: progress.hero.equippedArmor,
         },
         area: {
+          size: { width: 50, height: 50 },
           enemiesDefeated: progress.area.enemiesDefeated,
         },
       };

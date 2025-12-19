@@ -1,6 +1,6 @@
 import React from 'react';
 import { Oath } from '../App';
-import HeroGameRenderer from './HeroGameRenderer';
+import HeroGameRenderer from './hero/HeroGameRenderer';
 
 interface OathHeroGameProps {
   oath: Oath;

@@ -125,16 +125,16 @@ export class HeroGameManager {
     const baseHeroLevel = Math.floor(this.oath.currencies.willpower / 100) + 1;
 
     // Use saved level if it's higher (player progress), otherwise use base level
-    const heroLevel = savedProgress?.hero.stats.level
+    const heroLevel = savedProgress?.hero?.stats?.level
       ? Math.max(baseHeroLevel, savedProgress.hero.stats.level)
       : baseHeroLevel;
 
-    const skillPoints = savedProgress?.hero.stats.skillPoints ?? heroLevel;
+    const skillPoints = savedProgress?.hero?.stats?.skillPoints ?? heroLevel;
 
     // Merge saved skills with defaults
     const defaultSkills = this.getDefaultSkills();
     const mergedSkills = defaultSkills.map(defaultSkill => {
-      const savedSkill = savedProgress?.hero.skills.find(s => s.id === defaultSkill.id);
+      const savedSkill = savedProgress?.hero?.skills?.find(s => s.id === defaultSkill.id);
       return savedSkill ? { ...defaultSkill, ...savedSkill } : defaultSkill;
     });
 
@@ -143,7 +143,7 @@ export class HeroGameManager {
         position: { x: 0, z: 0 },
         stats: {
           level: heroLevel,
-          experience: savedProgress?.hero.stats.experience ?? Math.floor(this.oath.currencies.willpower),
+          experience: savedProgress?.hero?.stats?.experience ?? Math.floor(this.oath.currencies.willpower),
           experienceToNext: heroLevel * 100,
           skillPoints: skillPoints,
           health: 100 + (heroLevel - 1) * 20,
@@ -153,14 +153,14 @@ export class HeroGameManager {
           attack: 10 + (heroLevel - 1) * 2,
           defense: 5 + (heroLevel - 1) * 1,
         },
-        equippedWeapon: savedProgress?.hero.equippedWeapon ?? null,
-        equippedArmor: savedProgress?.hero.equippedArmor ?? [],
+        equippedWeapon: savedProgress?.hero?.equippedWeapon ?? null,
+        equippedArmor: savedProgress?.hero?.equippedArmor ?? [],
         skills: mergedSkills,
       },
       enemies: this.generateEnemies(),
       area: {
         size: { width: 50, height: 50 },
-        enemiesDefeated: savedProgress?.area.enemiesDefeated ?? 0,
+        enemiesDefeated: savedProgress?.area?.enemiesDefeated ?? 0,
       },
       combat: {
         isInCombat: false,
